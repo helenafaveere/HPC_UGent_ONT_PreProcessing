@@ -4,10 +4,11 @@
 #SBATCH --mem=250gb
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16   
+
 #SBATCH --gres=gpu:4
 #SBATCH --mail-user=justine.rayp@ugent.be
 #SBATCH --mail-type=ALL
-#SBATCH --job-name=ONT-Test4-J
+#SBATCH --job-name=ONT-Test5-J
 
 ###------------------------------------------------- module loading
 module purge
@@ -20,6 +21,9 @@ module load GCC/11.2.0
 module load SAMtools/1.14-GCC-11.2.0
 module load minimap2/2.22-GCCcore-11.2.0
 export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/dorado-0.4.0-linux-x64/bin:${PATH} # Add path to dorado installation
+export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/envs/pycoqc_252/bin:${PATH} # Set this to the right path to your installation of pycoqc
+export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/envs/modkit/bin:${PATH} # Add the path to your modkit installation
+conda activate wisecodorXv1.2.5 #activate your wisecondorx environment
 
 ###------------------------------------------------- function definition
 Fast5_2_Pod5() {
@@ -28,18 +32,40 @@ Fast5_2_Pod5() {
 }
 
 ###------------------------------------------------- flag definition
-while getopts "p:t:w:n:r:k:c:w:" flag; do
+DEFAULT_KIT_NAME="SQK-NBD114-24"
+DEFAULT_CONFIG="dna_r10.4.1_e8.2_400bps_sup@v4.2.0"
+DEFAULT_WISECONDORREF="/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/WisecondorX_ref/LQB.GRCh38.100kb.npz"
+
+# Check for provided options
+while getopts "p:t:w:n:r:k:c:W:" flag; do
     case "${flag}" in
         p) InputDataPath="${OPTARG}" ;;
         t) InputDataType="${OPTARG}" ;;
         w) WORKDIR="${OPTARG}" ;;
         n) num_samples="${OPTARG}" ;;
         r) REF="${OPTARG}" ;;
-        k) KIT_NAME="${OPTARG:-SQK-NBD114-24}" ;;
-        c) CONFIG="${OPTARG:-dna_r10.4.1_e8.2_400bps_sup@v4.2.0}" ;;
-        w) WISECONDORREF="${OPTARG:-/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/WisecondorX_ref/LQB.GRCh38.100kb.npz}" ;; 
+        k) KIT_NAME="${OPTARG:-"SQK-NBD114-24"}" ;;
+        c) CONFIG="${OPTARG:-"dna_r10.4.1_e8.2_400bps_sup@v4.2.0"}" ;;
+        W) WISECONDORREF="${OPTARG:-"/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/WisecondorX_ref/LQB.GRCh38.100kb.npz"}" ;; 
     esac
 done
+
+# Set default values if not provided
+if [[ -z "$KIT_NAME" ]]; then
+    KIT_NAME="$DEFAULT_KIT_NAME"
+fi
+
+if [[ -z "$CONFIG" ]]; then
+    CONFIG="$DEFAULT_CONFIG"
+fi
+if [[ -z "$WISECONDORREF" ]]; then
+    WISECONDORREF="$DEFAULT_WISECONDORREF"
+fi
+
+echo "KIT_NAME: $KIT_NAME"
+echo "CONFIG: $CONFIG"
+echo "WISECONDORREF: $WISECONDORREF"
+
 
 ###------------------------------------------------- converting to the right datatype
 if [ "$InputDataType" = "fast5" ]; then
@@ -53,13 +79,6 @@ else
     exit 1
 fi
 
-###----------------------------------------------- settings for basecalling
-
-CONFIG=${CONFIG}
-batch_size=0
-chunk_size=10000
-KIT_NAME=${KIT_NAME}
-dorado download --model ${CONFIG}
 
 ###----------------------------------------------- exporting all variables to make them available inside srun
 
@@ -76,10 +95,19 @@ cd ${WORKDIR}
 mkdir -p "${WORKDIR}/basecalling" 
 mkdir -p "${WORKDIR}/methylation" 
 
+###----------------------------------------------- settings for basecalling
+echo ${CONFIG} 
+echo ${KIT_NAME}
+batch_size=0
+chunk_size=10000
+dorado download --model ${CONFIG}
+
 ###--------------------------------------------- simplex basecalling (background process)
 
 srun --cpu-bind=cores --cpus-per-task=16 bash -c '
     echo "start basecalling" &&
+    echo ${CONFIG} &&
+    echo ${KIT_NAME} &&
     echo ${WORKDIR}/${CONFIG} &&
     echo ${READSDIR} &&
     dorado basecaller \
@@ -122,7 +150,6 @@ wait
 
 ###------------------------------------------------ settings for basecalling alignment
 
-export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/envs/pycoqc_252/bin:${PATH} # Set this to the right path to your installation of pycoqc
 export REF=${REF}
 
 ###--------------------------------------------- alignment and QC for basecalling
@@ -153,7 +180,6 @@ do
 done
 
 ###--------------------------------------------- methylation QC
-export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/envs/modkit/bin:${PATH} # Add the path to your modkit installation
 
 for ((i=1; i<=num_samples; i++))
 do
@@ -177,7 +203,7 @@ done
 
 
 ###----------------------------------------------- running WisecondorX to study CNVs (generates plots and BED files)
-conda activate wisecodorXv1.2.5 #activate your wisecondorx environment
+
 export WISECONDORREF=${WISECONDORREF}
 
 
