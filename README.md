@@ -3,10 +3,10 @@ This script is designed to perform various analyses on nanopore sequencing data,
 
 ## Prerequisites
 
-Linux environment with Bash shell
-SLURM job scheduler
-Modules:
-GCCcore/11.3.0
+Linux environment with Bash shell \n
+SLURM job scheduler \n
+Modules: \n
+GCCcore/11.3.0 \n
 GCC/11.3.0
 SAMtools/1.16.1-GCC-11.3.0
 pod5-file-format/0.1.8-foss-2022a
