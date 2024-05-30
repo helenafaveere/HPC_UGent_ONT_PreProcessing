@@ -13,11 +13,9 @@ This script is designed to perform various analyses on nanopore sequencing data,
   - minimap2/2.24-GCCcore-11.3.0
 
 ## Usage
-Some basic Git commands are:
+Modify the script's parameters according to your specific dataset and analysis requirements.
 ```
-git status
-git add
-git commit
+./Main_Script_Test6-J.sh -p -t -w -n <num_samples> -r -k <KIT_NAME> -c -W
 ```
 
 - -p <InputDataPath>: Path to input data.
