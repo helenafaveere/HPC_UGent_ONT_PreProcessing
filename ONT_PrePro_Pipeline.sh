@@ -6,7 +6,7 @@
 #SBATCH --gpus-per-task=2
 #SBATCH --mem-per-gpu=32G
 #SBATCH --ntasks=2
-#SBATCH --mail-user=justine.rayp@ugent.be
+#SBATCH --mail-user=helena.faveere@ugent.be
 #SBATCH --mail-type=ALL
 #SBATCH --job-name=Main_Script_Test6-J
 
