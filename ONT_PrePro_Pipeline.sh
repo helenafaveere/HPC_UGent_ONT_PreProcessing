@@ -8,7 +8,7 @@
 #SBATCH --ntasks=2
 #SBATCH --mail-user=helena.faveere@ugent.be
 #SBATCH --mail-type=ALL
-#SBATCH --job-name=Main_Script_Test6-J
+#SBATCH --job-name=Main_Script_TestRunOctober
 
 ###------------------------------------------------- module loading
 module purge
