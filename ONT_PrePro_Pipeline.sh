@@ -208,7 +208,7 @@ done
 
 
 ###----------------------------------------------- running WisecondorX to study CNVs (generates plots and BED files)
- conda activate $CONDA_ENV_NAME #activate wisecondorx environment
+ # conda activate $CONDA_ENV_NAME #activate wisecondorx environment # now at the top
 
 export WISECONDORREF=${WISECONDORREF}
 mkdir -p "${WORKDIR}/WisecondorX" 
