@@ -50,7 +50,7 @@ done
 
 #default values
 DEFAULT_KIT_NAME="SQK-NBD114-96"
-DEFAULT_CONFIG="dna_r10.4.1_e8.2_400bps_hac@v4.3.0"
+DEFAULT_CONFIG="dna_r10.4.1_e8.2_400bps_hac@v5.0.0"
 DEFAULT_WISECONDORREF="/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/WisecondorX_ref/LQB.GRCh38.100kb.npz"
 
 if [[ -z "$KIT_NAME" ]]; then
