@@ -21,10 +21,13 @@ module load GCC/11.3.0
 module load SAMtools/1.16.1-GCC-11.3.0
 module load pod5-file-format/0.1.8-foss-2022a
 module load minimap2/2.24-GCCcore-11.3.0
-export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/dorado-0.4.0-linux-x64/bin:${PATH} # Add path to dorado installation
-export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/bin:${PATH} # Set this to the right path to your installation of pycoqc
-export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/envs/modkit/bin:${PATH} # Add the path to your modkit installation
-CONDA_ENV_NAME=wisecodorXv1.2.5 #the name of your wisecondorX environment
+export PATH= /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/ONT_env/bin:${PATH} 
+#Add path to dorado, pycoqc, modkit and wisecondorX environment, all in the same file!!
+
+#export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/dorado-0.4.0-linux-x64/bin:${PATH} # Add path to dorado installation
+#export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/bin:${PATH} # Set this to the right path to your installation of pycoqc
+#export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/envs/modkit/bin:${PATH} # Add the path to your modkit installation
+#CONDA_ENV_NAME=wisecodorXv1.2.5 #the name of your wisecondorX environment
 
 
 ###------------------------------------------------- flag definition
