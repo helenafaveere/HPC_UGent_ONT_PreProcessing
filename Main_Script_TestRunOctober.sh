@@ -16,11 +16,11 @@ module purge
 #module unload GCCcore/13.2.0
 #module unload zlib/1.2.13-GCCcore-13.2.0
 #module unload binutils/2.40-GCCcore-13.2.0
-module load GCCcore/11.3.0
-module load GCC/11.3.0
-module load SAMtools/1.16.1-GCC-11.3.0
-module load pod5-file-format/0.1.8-foss-2022a
-module load minimap2/2.24-GCCcore-11.3.0
+module load GCCcore/12.3.0
+module load GCC/12.3.0
+module load SAMtools/1.18-GCC-12.3.0
+module load pod5-file-format/0.1.8-foss-2023a
+module load minimap2/2.26-GCCcore-12.3.0
 export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/ONT_env/bin:${PATH} 
 #Add path to dorado, pycoqc, modkit and wisecondorX environment, all in the same file!!
 
