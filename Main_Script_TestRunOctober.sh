@@ -30,7 +30,7 @@ export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/ONT_env/dorado
 #export PATH=/scratch/gent/vo/001/gvo00115/vsc45900/miniforge3/envs/modkit/bin:${PATH} # Add the path to your modkit installation
 #CONDA_ENV_NAME=wisecodorXv1.2.5 #the name of your wisecondorX environment
 
-conda activate ./kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/ONT_env/ #activate wisecondorx environment
+conda activate /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/ONT_env/ #activate wisecondorx environment
 # better than just given a name to wisecondorX environment
 ###------------------------------------------------- flag definition
 
