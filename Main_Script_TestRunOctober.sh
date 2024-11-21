@@ -123,7 +123,7 @@ srun --ntasks=1 --exclusive bash -c '
         --verbose \
         ${WORKDIR}/${CONFIG} \
         ${READSDIR} > basecalling/simplex_all_barcodes.bam &&
-    dorado demux --kit-name "${KIT_NAME}" --output-dir "${WORKDIR}/basecalling" basecalling/simplex_all_barcodes.bam &&
+    dorado demux --kit-name "${KIT_NAME}" --output-dir "${WORKDIR}/basecalling/demux" basecalling/simplex_all_barcodes.bam &&
     for ((i=1; i<=num_samples; i++)); do
         sample_num=$(printf "%02d" "$i")
         dorado summary -v "basecalling/${KIT_NAME}_barcode${sample_num}.bam" > "basecalling/sequencing_summary_simplex_barcode${sample_num}.txt" 
@@ -143,7 +143,7 @@ srun --ntasks=1 --exclusive bash -c '
         --verbose \
         "${WORKDIR}/${CONFIG}" \
         "${READSDIR}" > methylation/methylation_all_barcodes.bam &&
-    dorado demux --kit-name "${KIT_NAME}" --output-dir "${WORKDIR}/methylation" methylation/methylation_all_barcodes.bam &&
+    dorado demux --kit-name "${KIT_NAME}" --output-dir "${WORKDIR}/methylation/demux" methylation/methylation_all_barcodes.bam &&
     for ((i=1; i<=num_samples; i++)); do
         sample_num=$(printf "%02d" "$i")
         dorado summary -v "methylation/${KIT_NAME}_barcode${sample_num}.bam" > "methylation/sequencing_summary_methylation_barcode${sample_num}.txt"
