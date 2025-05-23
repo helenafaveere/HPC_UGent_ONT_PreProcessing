@@ -193,14 +193,19 @@ for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
     
-    samtools view "basecalling/${KIT_NAME}_barcode${sample_num}.bam" | awk '{print length($10)}' > "ReadLenghts/all_read_lengths_barcode${sample_num}.txt"
-    samtools view "basecalling/simplex_mapped_barcode${sample_num}.bam" | awk '{print length($10)}' > "ReadLenghts/all_mapped_read_lengths_barcode${sample_num}.txt"
+    samtools view "basecalling/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" | awk '{print length($10)}' > "ReadLengths/all_read_lengths_barcode${sample_num}.txt"
+    samtools view "basecalling/sorted_simplex_mapped_barcode${sample_num}.bam" | awk '{print length($10)}' > "ReadLengths/all_mapped_read_lengths_barcode${sample_num}.txt"
 done
 
+###----------------------------------------------- make histograms of the readlengths 
+mkdir -p "${WORKDIR}/ReadLengths/Histogram"
+for ((i=1; i<=num_samples; i++))
+do
+    sample_num=$(printf "%02d" "$i")
+    python /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/generate_read_lengths_histograms.py "$sample_num"
+done
 
 ###----------------------------------------------- running WisecondorX to study CNVs (generates plots and BED files)
- # conda activate $CONDA_ENV_NAME #activate wisecondorx environment # now at the top
-
 export WISECONDORREF=${WISECONDORREF}
 mkdir -p "${WORKDIR}/WisecondorX" 
 
@@ -210,7 +215,7 @@ do
     output_folder="barcode${i}"
     mkdir -p "${WORKDIR}/WisecondorX/${output_folder}" 
     
-    WisecondorX convert "basecalling/simplex_mapped_barcode${sample_num}.bam" "WisecondorX/simplex_mapped_barcode${sample_num}.npz"
+    WisecondorX convert "basecalling/sorted_simplex_mapped_barcode${sample_num}.bam" "WisecondorX/simplex_mapped_barcode${sample_num}.npz"
     
     WisecondorX predict "WisecondorX/simplex_mapped_barcode${sample_num}.npz" ${WISECONDORREF} barcode${sample_num} --plot --bed
     
