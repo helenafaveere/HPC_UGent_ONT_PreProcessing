@@ -1,5 +1,6 @@
-# HPC UGent ONT PreProcessing
-This script is designed to perform various analyses on nanopore sequencing data, including basecalling, demultiplexing, alignment, quality control, and CNV (Copy Number Variation) analysis using tools such as Dorado, Minimap2, Samtools, PycoQC, Modkit, and WisecondorX.
+# UGent_cfDNA_ONT_pipeline
+
+This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and is developed to perform various analyses on ONT sequencing data, like basecalling, demultiplexing, alignment, quality control, copy number variation analysis, and methylation analysis. A range of tools are employed, including dorado, minimap2, modkit, samtools, pycoQC, QDNAseq, wisecondorX, nanocaller, whatshap, and methylartist.
 
 ## Prerequisites
 
