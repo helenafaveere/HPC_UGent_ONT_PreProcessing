@@ -31,8 +31,6 @@ export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/env
 export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/whatshap_env/bin:${PATH} # Add path to your Whatshap installation
 
 ###------------------------------------------------- flag definition
-
-
 # Check for provided options
 while getopts "p:t:w:n:r:k:c:W:" flag; do
     case "${flag}" in
@@ -50,7 +48,7 @@ done
 #default values
 DEFAULT_KIT_NAME="SQK-NBD114-96"
 DEFAULT_CONFIG="dna_r10.4.1_e8.2_400bps_hac@v5.0.0"
-DEFAULT_WISECONDORREF="/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/WisecondorX_ref/LQB.GRCh38.100kb.npz"
+DEFAULT_WISECONDORREF="/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/WisecondorX_ref/LQB.GRCh38.100kb.npz"
 
 if [[ -z "$KIT_NAME" ]]; then
     KIT_NAME="$DEFAULT_KIT_NAME"
@@ -67,7 +65,6 @@ echo "KIT_NAME: $KIT_NAME"
 echo "CONFIG: $CONFIG"
 echo "WISECONDORREF: $WISECONDORREF"
 
-
 ###------------------------------------------------- converting to the right datatype
 if [ "$InputDataType" = "fast5" ]; then
     pod5 convert fast5 -r -O "$InputDataPath" "$InputDataPath"/*.fast5 "$InputDataPath"/output_pod5s
@@ -81,9 +78,8 @@ else
     exit 1
 fi
 
-
 ###----------------------------------------------- exporting all variables to make them available inside srun
-
+inside srun
 export READSDIR=${READSDIR}
 export CONFIG=${CONFIG}
 export batch_size=${batch_size}
@@ -94,8 +90,8 @@ export num_samples=${num_samples}
 export WORKDIR=${WORKDIR}
 mkdir -p ${WORKDIR}
 cd ${WORKDIR}
-mkdir -p "${WORKDIR}/basecalling" 
-mkdir -p "${WORKDIR}/methylation" 
+mkdir -p "${WORKDIR}/basecalling/demux/" 
+mkdir -p "${WORKDIR}/methylation/demux/" 
 
 ###----------------------------------------------- settings for basecalling
 echo ${CONFIG} 
@@ -105,7 +101,6 @@ chunk_size=10000
 dorado download --model ${CONFIG}
 
 ###--------------------------------------------- simplex basecalling (background process)
-
 srun --ntasks=1 --exclusive bash -c '
     echo "start basecalling" &&
     echo ${CONFIG} &&
@@ -113,7 +108,7 @@ srun --ntasks=1 --exclusive bash -c '
     echo ${WORKDIR}/${CONFIG} &&
     echo ${READSDIR} &&
     dorado basecaller \
-        --device "cuda:0,1" \
+        --device "cuda:0,1,2,3" \
         --batchsize ${batch_size} \
         --chunksize ${chunk_size} \
         --recursive \
@@ -121,18 +116,17 @@ srun --ntasks=1 --exclusive bash -c '
         --verbose \
         ${WORKDIR}/${CONFIG} \
         ${READSDIR} > basecalling/simplex_all_barcodes.bam &&
-    dorado demux --kit-name "${KIT_NAME}" --output-dir "${WORKDIR}/basecalling" basecalling/simplex_all_barcodes.bam &&
+    dorado demux --output-dir "${WORKDIR}/basecalling/demux" --no-classify basecalling/simplex_all_barcodes.bam &&
     for ((i=1; i<=num_samples; i++)); do
         sample_num=$(printf "%02d" "$i")
-        dorado summary -v "basecalling/${KIT_NAME}_barcode${sample_num}.bam" > "basecalling/sequencing_summary_simplex_barcode${sample_num}.txt" 
+        dorado summary -v "basecalling/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "basecalling/sequencing_summary_simplex_barcode${sample_num}.txt" 
     done
 ' &
 
 ###--------------------------------------------- methylation analysis (background process)
-
 srun --ntasks=1 --exclusive bash -c '
     dorado basecaller \
-        --device "cuda:0,1" \
+        --device "cuda:0,1,2,3" \
         --batchsize "${batch_size}" \
         --chunksize "${chunk_size}" \
         --modified-bases 5mCG_5hmCG \
@@ -141,48 +135,46 @@ srun --ntasks=1 --exclusive bash -c '
         --verbose \
         "${WORKDIR}/${CONFIG}" \
         "${READSDIR}" > methylation/methylation_all_barcodes.bam &&
-    dorado demux --kit-name "${KIT_NAME}" --output-dir "${WORKDIR}/methylation" methylation/methylation_all_barcodes.bam &&
+    dorado demux --output-dir "${WORKDIR}/methylation/demux" --no-classify methylation/methylation_all_barcodes.bam &&
     for ((i=1; i<=num_samples; i++)); do
         sample_num=$(printf "%02d" "$i")
-        dorado summary -v "methylation/${KIT_NAME}_barcode${sample_num}.bam" > "methylation/sequencing_summary_methylation_barcode${sample_num}.txt"
+        dorado summary -v "methylation/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "methylation/sequencing_summary_methylation_barcode${sample_num}.txt"
     done
 ' &
-
 wait
 
 ###------------------------------------------------ settings for basecalling alignment
-
 export REF=${REF}
 
 ###--------------------------------------------- alignment and QC for basecalling
-
 for ((i=1; i<=num_samples; i++)); do
     sample_num=$(printf "%02d" "$i")
     
-    samtools bam2fq "basecalling/${KIT_NAME}_barcode${sample_num}.bam" > "basecalling/${KIT_NAME}_barcode${sample_num}.fastq"
+    samtools bam2fq "basecalling/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "basecalling/${KIT_NAME}_barcode${sample_num}.fastq"
 
-    minimap2 -ax map-ont -t 30 "${REF}" "basecalling/${KIT_NAME}_barcode${sample_num}.fastq" | samtools sort -o "basecalling/simplex_mapped_barcode${sample_num}.bam"
+    dorado aligner "${REF}" "basecalling/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "basecalling/simplex_mapped_barcode${sample_num}.bam"
+
+    samtools sort "basecalling/simplex_mapped_barcode${sample_num}.bam" -o "basecalling/sorted_simplex_mapped_barcode${sample_num}.bam"
     
-    samtools index "basecalling/simplex_mapped_barcode${sample_num}.bam"
+    samtools index "basecalling/sorted_simplex_mapped_barcode${sample_num}.bam"
 
-    pycoQC -f "basecalling/sequencing_summary_simplex_barcode${sample_num}.txt" -a "basecalling/simplex_mapped_barcode${sample_num}.bam" -o "basecalling/QC_simplex_barcode${sample_num}.html"
+    pycoQC -f "basecalling/sequencing_summary_simplex_barcode${sample_num}.txt" -a "basecalling/sorted_simplex_mapped_barcode${sample_num}.bam" -o "basecalling/QC_simplex_barcode${sample_num}.html"
 done
 
 ###------------------------------------------------ settings for methylation alignment
+export REF=${REF}
 
 ###--------------------------------------------- alignment for methylation analysis
-
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
     
-    samtools bam2fq "methylation/${KIT_NAME}_barcode${sample_num}.bam" > "methylation/${KIT_NAME}_barcode${sample_num}.fastq"
+    samtools bam2fq "methylation/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "methylation/${KIT_NAME}_barcode${sample_num}.fastq"
 
-    dorado aligner "${REF}" "methylation/${KIT_NAME}_barcode${sample_num}.bam" > "methylation/mapped_methylation_barcode${sample_num}.bam"
+    dorado aligner "${REF}" "methylation/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "methylation/mapped_methylation_barcode${sample_num}.bam"
 done
 
 ###--------------------------------------------- methylation QC
-
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
@@ -196,7 +188,7 @@ do
 done
 
 ###----------------------------------------------- get the readlenghts for further processing
-mkdir -p "${WORKDIR}/ReadLenghts" 
+mkdir -p "${WORKDIR}/ReadLengths" 
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
