@@ -7,16 +7,17 @@ This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and i
 - Linux environment with Bash shell
 - SLURM job scheduler
 - Modules:
-  - GCCcore/11.3.0
-  - GCC/11.3.0 
-  - SAMtools/1.16.1-GCC-11.3.0 
-  - pod5-file-format/0.1.8-foss-2022a 
-  - minimap2/2.24-GCCcore-11.3.0
+  - GCCcore/12.3.0
+  - GCC/12.3.0 
+  - SAMtools/1.18-GCC-12.3.0 
+  - pod5-file-format/0.3.10-foss-2023a
+  - minimap2/2.26-GCCcore-12.3.0
+  - R/4.3.3-gfbf-2023b
 
 ## Usage
 Modify the script's parameters according to your specific dataset and analysis requirements.
 ```
-./Main_Script_Test6-J.sh -p -t -w -n <num_samples> -r -k <KIT_NAME> -c -W
+./main_script.sh -p -t -w -n <num_samples> -r -k <KIT_NAME> -c -W
 ```
 
 - -p <InputDataPath>: Path to input data.
@@ -26,7 +27,7 @@ Modify the script's parameters according to your specific dataset and analysis r
 - -r <REF>: Reference genome file.
 - -k <KIT_NAME>: Nanopore sequencing kit name (optional, default: SQK-NBD114-24).
 - -c <CONFIG>: Configuration file (optional, default: dna_r10.4.1_e8.2_400bps_sup@v4.2.0).
-- -W <WISECONDORREF>: Path to the WisecondorX reference file (optional, default: /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/WisecondorX_ref/LQB.GRCh38.100kb.npz).
+- -W <WISECONDORREF>: Path to the WisecondorX reference file (optional, default: /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/WisecondorX_ref/LQB.GRCh38.100kb.npz).
 
 ## Background Processes
 
@@ -38,9 +39,10 @@ The script utilizes SLURM to run background processes for basecalling and methyl
 - Methylation analysis results: Stored in `${WORKDIR}/methylation`.
 - Read length information: Stored in `${WORKDIR}/ReadLengths`.
 - WisecondorX CNV analysis results: Stored in `${WORKDIR}/WisecondorX`.
+- QDNAseq CNV analysis results: Stored in `${WORKDIR}/QDNAseq`.
 
 ## Dependencies
-Ensure the following dependencies are installed and available in your environment:
+Ensure the following dependencies are installed and available in your (conda) environment:
 
 - Dorado
 - Minimap2
@@ -48,6 +50,10 @@ Ensure the following dependencies are installed and available in your environmen
 - PycoQC
 - Modkit
 - WisecondorX
+- Python
+- Methylartist
+- Nanocaller
+- Whatshap
 
 
 
