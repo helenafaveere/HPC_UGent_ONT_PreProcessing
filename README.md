@@ -11,7 +11,6 @@ This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and i
   - GCC/12.3.0 
   - SAMtools/1.18-GCC-12.3.0 
   - pod5-file-format/0.3.10-foss-2023a
-  - minimap2/2.26-GCCcore-12.3.0
   - R/4.3.3-gfbf-2023b
 
 ## Usage
@@ -45,7 +44,6 @@ The script utilizes SLURM to run background processes for basecalling and methyl
 Ensure the following dependencies are installed and available in your (conda) environment:
 
 - Dorado
-- Minimap2
 - Samtools
 - PycoQC
 - Modkit
