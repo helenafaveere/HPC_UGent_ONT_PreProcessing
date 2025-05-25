@@ -1,6 +1,6 @@
 # UGent_cfDNA_ONT_pipeline
 
-This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and is developed to perform various analyses on ONT sequencing data, like basecalling, demultiplexing, alignment, quality control, copy number variation analysis, and methylation analysis. A range of tools are employed, including dorado, modkit, samtools, pycoQC, QDNAseq, wisecondorX, nanocaller, whatshap, and methylartist.
+This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and is developed to perform various analyses on ONT sequencing data, like basecalling, demultiplexing, alignment, quality control, copy number variation analysis, and methylation analysis. A range of tools are employed, including dorado, modkit, samtools, pycoQC, QDNAseq, wisecondorX, PREFACE, nanocaller, whatshap, and methylartist.
 
 ## Prerequisites
 
@@ -20,7 +20,7 @@ Modify the script's parameters according to your specific dataset and analysis r
 ```
 
 - -p <InputDataPath>: Path to input data.
-- -t <InputDataType>: Type of input data (fast5 or pod5).
+- -t <InputDataType>: Type of input data (FAST5 or POD5).
 - -w <WORKDIR>: Working directory where analysis results will be stored.
 - -n <num_samples>: Number of samples to analyze.
 - -r <REF>: Reference genome file.
@@ -39,6 +39,7 @@ The script utilizes SLURM to run background processes for basecalling and methyl
 - Read length information: Stored in `${WORKDIR}/ReadLengths`.
 - WisecondorX CNV analysis results: Stored in `${WORKDIR}/WisecondorX`.
 - QDNAseq CNV analysis results: Stored in `${WORKDIR}/QDNAseq`.
+- PREFACE
 
 ## Dependencies
 Ensure the following dependencies are installed and available in your (conda) environment:
