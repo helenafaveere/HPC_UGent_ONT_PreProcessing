@@ -222,3 +222,35 @@ do
     mv barcode${sample_num}* "${WORKDIR}/WisecondorX/${output_folder}/"
 
 done
+
+###----------------------------------------------- running QDNAseq to study CNVs
+mkdir -p "${WORKDIR}/QDNAseq" 
+
+for ((i=1; i<=num_samples; i++))
+do
+    sample_num=$(printf "%02d" "$i")
+    Rscript /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/GRCh38_VisualisationScript.R "$WORKDIR" "$sample_num"
+done
+
+###----------------------------------------------- running PREFACE to study FF
+mkdir -p "${WORKDIR}/PREFACE/bedfiles"
+
+for ((i=1; i<=num_samples; i++))
+do
+    barcode=$(printf "barcode%02d" "$i")
+    infile="${WORKDIR}/WisecondorX/${barcode}/${barcode}_bins.bed"
+    outfile="${WORKDIR}/PREFACE/bedfiles/${barcode}_fixed.bed"
+
+    if [[ -f "$infile" ]]; then
+        awk 'BEGIN {OFS="\t"} {gsub(/nan/, "NA", $5); print $1, $2, $3, $5}' "$infile" > "$outfile"
+    else
+        echo "Warning: $infile not found." >&2
+    fi
+done
+
+for bedfile in "${WORKDIR}/PREFACE/bedfiles/"*_fixed.bed; do
+    sample_name=$(basename "$bedfile" _fixed.bed)
+    out_prefix="${WORKDIR}/PREFACE/${sample_name}"
+    echo "Running PREFACE on $sample_name"
+    Rscript "/user/gent/484/vsc48405/gONT/Scripts/PREFACE.R" predict --infile "$bedfile" --model "/user/gent/484/vsc48405/gONT/Scripts/PREFACE.RData" --json "$out_prefix"
+done
