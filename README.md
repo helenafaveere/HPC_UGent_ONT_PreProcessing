@@ -11,7 +11,7 @@ This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and i
   - GCC/12.3.0 
   - SAMtools/1.18-GCC-12.3.0 
   - pod5-file-format/0.3.10-foss-2023a
-  - R/4.3.3-gfbf-2023b
+  - R/4.4.2-gfbf-2024a
 
 ## Usage
 Modify the script's parameters according to your specific dataset and analysis requirements.
@@ -36,10 +36,10 @@ The script utilizes SLURM to run background processes for basecalling and methyl
 
 - Basecalling results: Stored in `${WORKDIR}/basecalling`.
 - Methylation analysis results: Stored in `${WORKDIR}/methylation`.
-- Read length information: Stored in `${WORKDIR}/ReadLengths`.
+- Read length information & histograms: Stored in `${WORKDIR}/ReadLengths`.
 - WisecondorX CNV analysis results: Stored in `${WORKDIR}/WisecondorX`.
 - QDNAseq CNV analysis results: Stored in `${WORKDIR}/QDNAseq`.
-- PREFACE
+- PREFACE results: Stored in `${WORKDIR}/PREFACE`.
 
 ## Dependencies
 Ensure the following dependencies are installed and available in your (conda) environment:
