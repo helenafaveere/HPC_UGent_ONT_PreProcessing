@@ -18,7 +18,7 @@ This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and i
 ## Usage
 Modify the script's parameters according to your specific dataset and analysis requirements.
 ```
-./main_script.sh -p -t -w -n <num_samples> -r -k <KIT_NAME> -c -W
+./main_script.sh -p -t -w -n <num_samples> -r -k <KIT_NAME> -c -W -g -h
 ```
 
 - -p <InputDataPath>: Path to input data.
@@ -29,6 +29,8 @@ Modify the script's parameters according to your specific dataset and analysis r
 - -k <KIT_NAME>: Nanopore sequencing kit name (optional, default: SQK-NBD114-24).
 - -c <CONFIG>: Configuration file (optional, default: dna_r10.4.1_e8.2_400bps_sup@v4.2.0).
 - -W <WISECONDORREF>: Path to the WisecondorX reference file (optional, default: /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/WisecondorX_ref/LQB.GRCh38.100kb.npz).
+- -g <REGION>: Gene region (optional, default: chrX:73820672-73838873)
+- -h <GENE>: Gene name corresponding to the region (optional, default: XIST)
 
 ## Background Processes
 
@@ -38,10 +40,15 @@ The script utilizes SLURM to run background processes for basecalling and methyl
 
 - Basecalling results: Stored in `${WORKDIR}/basecalling`.
 - Methylation analysis results: Stored in `${WORKDIR}/methylation`.
-- Read length information & histograms: Stored in `${WORKDIR}/ReadLengths`.
+- Read length information: Stored in `${WORKDIR}/ReadLengths`.
+- Histograms of the read lengths: Stored in `${WORKDIR}/ReadLengths/Histogram`.
 - WisecondorX CNV analysis results: Stored in `${WORKDIR}/WisecondorX`.
 - QDNAseq CNV analysis results: Stored in `${WORKDIR}/QDNAseq`.
 - PREFACE results: Stored in `${WORKDIR}/PREFACE`.
+- Heatmap of the coverage within gene region: Stored in `${WORKDIR}/Heatmaps`.
+- Results nanocaller: Stored in `${WORKDIR}/NanoCaller`.
+- Haplotagged BAM files: Stored in `${WORKDIR}/WhatsHap`.
+- Output methylartist locus: Stored in `${WORKDIR}/Methylartist`.
 
 ## Dependencies
 Ensure the following dependencies are installed and available in your (conda) environment:
