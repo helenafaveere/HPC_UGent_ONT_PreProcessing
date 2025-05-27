@@ -220,7 +220,7 @@ mkdir -p "${WORKDIR}/ReadLengths/Histogram"
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
-    python /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/generate_read_lengths_histograms.py "$sample_num"
+    python /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/generate_histograms.py "$sample_num"
 done
 
 echo "histograms ok"
