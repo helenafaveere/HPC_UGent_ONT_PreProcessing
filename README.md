@@ -9,9 +9,9 @@ This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and i
 - Linux environment with Bash shell
 - SLURM job scheduler
 - Modules:
-  - GCCcore/12.3.0
-  - GCC/12.3.0 
-  - SAMtools/1.18-GCC-12.3.0 
+  - GCCcore/13.3.0
+  - GCC/13.3.0 
+  - SAMtools/1.21-GCC-13.3.0 
   - pod5-file-format/0.3.10-foss-2023a
   - R/4.4.2-gfbf-2024a
 
