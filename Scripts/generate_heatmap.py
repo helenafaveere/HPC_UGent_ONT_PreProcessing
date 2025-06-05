@@ -48,7 +48,6 @@ for barcode in barcodes:
 
 array = np.array(coverage)
 
-# plot heatmap
 plt.figure(figsize=(15, 6)) 
 sns.heatmap(array, xticklabels=False, yticklabels=sample_labels, cmap="BuPu",cbar_kws={'label': 'Coverage depth'})
 interval = 10  # can be changed --> which bins are shown on x axis
@@ -62,4 +61,4 @@ plt.tight_layout()
 os.makedirs(output, exist_ok=True)
 outputfile = os.path.join(output, f"coverage_heatmap_{region}.png")
 plt.savefig(outputfile, dpi=300)
-print(f"heatmap done --> {outputfile}")
+print(f"heatmap done ; {outputfile}")
