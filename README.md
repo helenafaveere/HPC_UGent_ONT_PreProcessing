@@ -1,6 +1,6 @@
 # UGent_cfDNA_ONT_pipeline
 
-This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and is developed to perform various analyses on ONT sequencing data, like basecalling, demultiplexing, alignment, quality control, copy number variation analysis, and methylation analysis. A range of tools are employed, including dorado, modkit, samtools, pycoQC, QDNAseq, wisecondorX, PREFACE, nanocaller, whatshap, and methylartist.
+This pipeline is adapted from *HPC UGent ONT PreProcessing by JustineRayp* and is developed to perform various analyses on ONT sequencing data, like basecalling, demultiplexing, alignment, quality control, copy number variation analysis, and methylation analysis. A range of tools are employed, including dorado, modkit, samtools, pycoQC, QDNAseq, wisecondorX, PREFACE, NanoCaller, WhatsHap, and methylartist.
 
 ![Image](https://github.com/user-attachments/assets/b1a8e15d-a2b5-4743-8939-c824884de39d)
 
@@ -61,8 +61,8 @@ Ensure the following dependencies are installed and available in your (conda) en
 - Python
 - R
 - Methylartist
-- Nanocaller
-- Whatshap
+- NanoCaller
+- WhatsHap
 
 
 
