@@ -8,23 +8,20 @@
 #SBATCH --mem-per-gpu=80G
 #SBATCH --output=TestRun_sup_%j.log # Output log file (%j will be replaced by the job ID)
 #SBATCH --error=TestRun_sup_%j.err  # Error log file (%j will be replaced by the job ID)
-#SBATCH --mail-user=helena.faveere@ugent.be
+#SBATCH --mail-user=#fillin@ugent.be
 #SBATCH --mail-type=ALL
 #SBATCH --job-name=SUP
 
 ###------------------------------------------------- module loading
 module purge
-module load GCCcore/12.3.0
-module load GCC/12.3.0
-module load SAMtools/1.18-GCC-12.3.0
+module load GCCcore/13.3.0
+module load GCC/13.3.0
+module load SAMtools/1.21-GCC-13.3.0
 module load pod5-file-format/0.3.10-foss-2023a
-module load minimap2/2.26-GCCcore-12.3.0
+module load minimap2/2.26-GCCcore-13.3.0
 module load R/4.4.2-gfbf-2024a
 
 export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/dorado-0.8.2-linux-x64/bin:${PATH} # Add path to your Dorado installation
-export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/pycoqc_env/bin:${PATH} # Add path to your pycoQC installation
-export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/modkit_env/bin:${PATH} # Add path to your modkit installation
-
 
 ###------------------------------------------------- flag definition
 # Check for provided options
@@ -71,7 +68,6 @@ echo "CONFIG: $CONFIG"
 echo "WISECONDORREF: $WISECONDORREF"
 echo "REGION: $REGION"
 echo "GENE: $GENE"
-
 
 ###------------------------------------------------- converting to the right datatype
 if [ "$InputDataType" = "fast5" ]; then
@@ -148,12 +144,12 @@ srun --ntasks=1 --exclusive bash -c '
         dorado summary -v "methylation/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "methylation/sequencing_summary_methylation_barcode${sample_num}.txt"
     done
 ' &
-
-echo "demux + basecall + summary for both types done"
 wait
+echo "demux + basecall + summary for both types done"
 
 ###------------------------------------------------ settings for basecalling alignment
 export REF=${REF}
+export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/pycoqc_env/bin:${PATH} # Add path to your pycoQC installation
 
 ###--------------------------------------------- alignment and QC for basecalling
 for ((i=1; i<=num_samples; i++)); do
@@ -185,6 +181,7 @@ do
 done
 
 echo "methylation alignment ok"
+
 ###--------------------------------------------- methylation QC
 for ((i=1; i<=num_samples; i++))
 do
@@ -220,7 +217,7 @@ mkdir -p "${WORKDIR}/ReadLengths/Histogram"
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
-    python /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/generate_histograms.py "$sample_num"
+    python /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/generate_read_lengths_histograms.py "$sample_num" "${WORKDIR}"
 done
 
 echo "histograms ok"
@@ -264,12 +261,9 @@ mkdir -p "${WORKDIR}/PREFACE/bedfiles"
 
 for ((i=1; i<=num_samples; i++))
 do
-    barcode=$(printf "barcode%02d" "$i")
-    infile="${WORKDIR}/WisecondorX/${barcode}/${barcode}_bins.bed"
-    outfile="${WORKDIR}/PREFACE/bedfiles/${barcode}_fixed.bed"
-
+    sample_num=$(printf "barcode%02d" "$i")
     if [[ -f "$infile" ]]; then
-        awk 'BEGIN {OFS="\t"} {gsub(/nan/, "NA", $5); print $1, $2, $3, $5}' "$infile" > "$outfile"
+        awk 'BEGIN {OFS="\t"} {gsub(/nan/, "NA", $5); print $1, $2, $3, $5}' "${WORKDIR}/WisecondorX/${barcode}/${sample_num}_bins.bed" > "${WORKDIR}/PREFACE/bedfiles/${sample_num}_fixed.bed"
     else
         echo "Warning: $infile not found." >&2
     fi
