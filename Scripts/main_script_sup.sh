@@ -183,6 +183,8 @@ done
 echo "methylation alignment ok"
 
 ###--------------------------------------------- methylation QC
+export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/modkit_env/bin:${PATH} # Add path to your modkit installation
+
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
