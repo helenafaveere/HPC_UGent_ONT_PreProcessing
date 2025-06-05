@@ -8,23 +8,20 @@
 #SBATCH --mem-per-gpu=40G
 #SBATCH --output=TestRun_hac_%j.log # Output log file (%j will be replaced by the job ID)
 #SBATCH --error=TestRun_hac_%j.err  # Error log file (%j will be replaced by the job ID)
-#SBATCH --mail-user=helena.faveere@ugent.be
+#SBATCH --mail-user=#fill in @ugent.be
 #SBATCH --mail-type=ALL
 #SBATCH --job-name=HAC
 
 ###------------------------------------------------- module loading
 module purge
-module load GCCcore/12.3.0
-module load GCC/12.3.0
-module load SAMtools/1.18-GCC-12.3.0
+module load GCCcore/13.3.0
+module load GCC/13.3.0
+module load SAMtools/1.21-GCC-13.3.0
 module load pod5-file-format/0.3.10-foss-2023a
-module load minimap2/2.26-GCCcore-12.3.0
+module load minimap2/2.26-GCCcore-13.3.0
 module load R/4.4.2-gfbf-2024a
 
 export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/dorado-0.8.2-linux-x64/bin:${PATH} # Add path to your Dorado installation
-export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/pycoqc_env/bin:${PATH} # Add path to your pycoQC installation
-export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/modkit_env/bin:${PATH} # Add path to your modkit installation
-
 
 ###------------------------------------------------- flag definition
 # Check for provided options
@@ -148,12 +145,12 @@ srun --ntasks=1 --exclusive bash -c '
         dorado summary -v "methylation/demux/5b6469e0391acf348cd89728e70975aabd01996f_${KIT_NAME}_barcode${sample_num}.bam" > "methylation/sequencing_summary_methylation_barcode${sample_num}.txt"
     done
 ' &
-
-echo "demux + basecall + summary for both types done"
 wait
+echo "demux + basecall + summary for both types done"
 
 ###------------------------------------------------ settings for basecalling alignment
 export REF=${REF}
+export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/pycoqc_env/bin:${PATH} # Add path to your pycoQC installation
 
 ###--------------------------------------------- alignment and QC for basecalling
 for ((i=1; i<=num_samples; i++)); do
@@ -186,6 +183,7 @@ done
 
 echo "methylation alignment ok"
 ###--------------------------------------------- methylation QC
+export PATH=/kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Tools/miniforge3/envs/modkit_env/bin:${PATH} # Add path to your modkit installation
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
@@ -220,7 +218,7 @@ mkdir -p "${WORKDIR}/ReadLengths/Histogram"
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
-    python /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/generate_histograms.py "$sample_num"
+    python /kyukon/data/gent/shared/001/gvo00115/ONT_cfDNA/Scripts/generate_histograms.py "$sample_num" "${WORKDIR}"
 done
 
 echo "histograms ok"
@@ -264,22 +262,18 @@ mkdir -p "${WORKDIR}/PREFACE/bedfiles"
 
 for ((i=1; i<=num_samples; i++))
 do
-    barcode=$(printf "barcode%02d" "$i")
-    infile="${WORKDIR}/WisecondorX/${barcode}/${barcode}_bins.bed"
-    outfile="${WORKDIR}/PREFACE/bedfiles/${barcode}_fixed.bed"
-
-    if [[ -f "$infile" ]]; then
-        awk 'BEGIN {OFS="\t"} {gsub(/nan/, "NA", $5); print $1, $2, $3, $5}' "$infile" > "$outfile"
+    sample_num=$(printf "barcode%02d" "$i")
+    if [[ -f "${WORKDIR}/WisecondorX/${sample_num}/${sample_num}_bins.bed" ]]; then
+        awk 'BEGIN {OFS="\t"} {gsub(/nan/, "NA", $5); print $1, $2, $3, $5}' "${WORKDIR}/WisecondorX/${sample_num}/${sample_num}_bins.bed" > "${WORKDIR}/PREFACE/bedfiles/${sample_num}_fixed.be"
     else
-        echo "Warning: $infile not found." >&2
+        echo "Warning: "${WORKDIR}/WisecondorX/${sample_num}/${sample_num}_bins.bed" not found." >&2
     fi
 done
 
 for bedfile in "${WORKDIR}/PREFACE/bedfiles/"*_fixed.bed; do
     sample_name=$(basename "$bedfile" _fixed.bed)
-    out_prefix="${WORKDIR}/PREFACE/${sample_name}"
     echo "Running PREFACE on $sample_name"
-    Rscript "/user/gent/484/vsc48405/gONT/Scripts/PREFACE.R" predict --infile "$bedfile" --model "/user/gent/484/vsc48405/gONT/Scripts/PREFACE.RData" --json "$out_prefix"
+    Rscript "/user/gent/484/vsc48405/gONT/Scripts/PREFACE.R" predict --infile "$bedfile" --model "/user/gent/484/vsc48405/gONT/Scripts/PREFACE.RData" --json "${WORKDIR}/PREFACE/${sample_name}"
 done
 
 echo "preface ok"
@@ -292,15 +286,12 @@ mkdir -p "${WORKDIR}/Heatmaps/coverage_outputs_samtools"
 for ((i=1; i<=num_samples; i++))
 do
     sample_num=$(printf "%02d" "$i")
-    bam_file="methylation/sorted_methylation_barcode${sample_num}.bam"
-    output="Heatmaps/coverage_outputs_samtools/depth_barcode${sample_num}.txt"
-
     if [ -f "${bam_file}" ]; then
-        echo "Calculating depth for ${bam_file} in region ${REGION}..."
-        samtools depth -r "${REGION}" -a "${bam_file}" > "${output}"
-        echo "Saved depth output to ${output}"
+        echo "Calculating depth for "methylation/sorted_methylation_barcode${sample_num}.bam" in region ${REGION}..."
+        samtools depth -r "${REGION}" -a "methylation/sorted_methylation_barcode${sample_num}.bam" > "Heatmaps/coverage_outputs_samtools/depth_barcode${sample_num}.txt"
+        echo "Saved depth output to Heatmaps/coverage_outputs_samtools/depth_barcode${sample_num}.txt"
     else
-        echo "Warning: ${bam_file} not found, skipping..."
+        echo "Warning: methylation/sorted_methylation_barcode${sample_num}.bam not found, skipping..."
     fi
 done
 
