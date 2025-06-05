@@ -59,6 +59,7 @@ Ensure the following dependencies are installed and available in your (conda) en
 - Modkit
 - WisecondorX
 - Python
+- R
 - Methylartist
 - Nanocaller
 - Whatshap
